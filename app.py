@@ -1,6 +1,9 @@
 import streamlit as st
 import json
 import os
+import requests
+from PIL import Image
+from io import BytesIO
 
 # Inicializar el estado de la sesión
 if 'data' not in st.session_state:
@@ -93,6 +96,19 @@ else:
         st.write("**Muebles en esta habitación:**")
         for enlace in data[vivienda][habitacion]:
             st.write(f"- [{enlace}]({enlace})")
+            # Intentar mostrar una miniatura
+            try:
+                if enlace.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
+                    st.image(enlace, width=150)
+                else:
+                    # Intentar obtener la imagen del sitio web
+                    response = requests.get(enlace, timeout=5)
+                    if response.status_code == 200:
+                        # Esto es un simplificación; obtener una imagen de un sitio web requiere parsing
+                        # Para mantenerlo simple, no lo implementaremos aquí
+                        pass
+            except Exception as e:
+                st.write("No se pudo cargar la miniatura.")
 
 # Opciones para guardar y compartir
 st.sidebar.markdown("---")
