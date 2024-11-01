@@ -30,7 +30,7 @@ if vivienda == "Crear nueva vivienda":
         if nueva_vivienda:
             data[nueva_vivienda] = {}
             save_data(data)
-            st.experimental_rerun()  # Cambiar a st.rerun() si es necesario
+            st.rerun()  # Cambiar a st.rerun() si es necesario
 else:
     st.header(f"Vivienda: {vivienda}")
 
@@ -44,7 +44,7 @@ else:
             if nueva_habitacion:
                 data[vivienda][nueva_habitacion] = []
                 save_data(data)
-                st.experimental_rerun()  # Cambiar a st.rerun() si es necesario
+                st.rerun()  # Cambiar a st.rerun() si es necesario
     else:
         st.subheader(f"Habitación: {habitacion}")
 
@@ -79,4 +79,4 @@ archivo_subido = st.sidebar.file_uploader("Importar datos", type=['json'])
 if archivo_subido is not None:
     data = json.load(archivo_subido)
     save_data(data)
-    st.experimental_rerun()  # Cambiar a st.rerun() si es necesario
+    st.rerun()  # Cambiar a st.rerun() si es necesario
