@@ -14,45 +14,79 @@ data = st.session_state.data
 
 st.title("Aplicación de Viviendas y Habitaciones")
 
-# Seleccionar o crear una vivienda
+# Función para guardar datos
+def save_data():
+    with open('data.json', 'w') as f:
+        json.dump(st.session_state.data, f)
+
+# Manejo del estado de la vivienda seleccionada
+if 'vivienda_actual' not in st.session_state:
+    st.session_state.vivienda_actual = "Crear nueva vivienda"
+
+# Listado de viviendas
 viviendas = list(data.keys())
-vivienda = st.sidebar.selectbox("Selecciona una vivienda", ["Crear nueva vivienda"] + viviendas, key='vivienda_select')
+vivienda_options = ["Crear nueva vivienda"] + viviendas
+
+# Obtener índice de la vivienda seleccionada
+if st.session_state.vivienda_actual in vivienda_options:
+    vivienda_index = vivienda_options.index(st.session_state.vivienda_actual)
+else:
+    vivienda_index = 0  # Por defecto, "Crear nueva vivienda"
+
+# Seleccionar o crear una vivienda
+vivienda = st.sidebar.selectbox("Selecciona una vivienda", vivienda_options, index=vivienda_index)
 
 if vivienda == "Crear nueva vivienda":
-    nueva_vivienda = st.sidebar.text_input("Nombre de la nueva vivienda", key='nueva_vivienda')
-    if st.sidebar.button("Crear vivienda", key='crear_vivienda'):
-        if nueva_vivienda:
+    nueva_vivienda = st.sidebar.text_input("Nombre de la nueva vivienda")
+    if st.sidebar.button("Crear vivienda"):
+        if nueva_vivienda and nueva_vivienda not in viviendas:
             data[nueva_vivienda] = {}
-            with open('data.json', 'w') as f:
-                json.dump(data, f)
-            st.session_state.vivienda_select = nueva_vivienda  # Actualizar selección
+            save_data()
+            st.session_state.vivienda_actual = nueva_vivienda
             st.rerun()
+        else:
+            st.sidebar.error("El nombre de la vivienda ya existe o es inválido.")
 else:
+    st.session_state.vivienda_actual = vivienda
     st.header(f"Vivienda: {vivienda}")
 
-    # Seleccionar o crear una habitación
+    # Manejo del estado de la habitación seleccionada
+    if 'habitacion_actual' not in st.session_state:
+        st.session_state.habitacion_actual = "Crear nueva habitación"
+
+    # Listado de habitaciones
     habitaciones = list(data[vivienda].keys())
-    habitacion = st.selectbox("Selecciona una habitación", ["Crear nueva habitación"] + habitaciones, key='habitacion_select')
+    habitacion_options = ["Crear nueva habitación"] + habitaciones
+
+    # Obtener índice de la habitación seleccionada
+    if st.session_state.habitacion_actual in habitacion_options:
+        habitacion_index = habitacion_options.index(st.session_state.habitacion_actual)
+    else:
+        habitacion_index = 0  # Por defecto, "Crear nueva habitación"
+
+    # Seleccionar o crear una habitación
+    habitacion = st.selectbox("Selecciona una habitación", habitacion_options, index=habitacion_index)
 
     if habitacion == "Crear nueva habitación":
-        nueva_habitacion = st.text_input("Nombre de la nueva habitación", key='nueva_habitacion')
-        if st.button("Crear habitación", key='crear_habitacion'):
-            if nueva_habitacion:
+        nueva_habitacion = st.text_input("Nombre de la nueva habitación")
+        if st.button("Crear habitación"):
+            if nueva_habitacion and nueva_habitacion not in habitaciones:
                 data[vivienda][nueva_habitacion] = []
-                with open('data.json', 'w') as f:
-                    json.dump(data, f)
-                st.session_state.habitacion_select = nueva_habitacion  # Actualizar selección
+                save_data()
+                st.session_state.habitacion_actual = nueva_habitacion
                 st.rerun()
-    elif habitacion:
+            else:
+                st.error("El nombre de la habitación ya existe o es inválido.")
+    else:
+        st.session_state.habitacion_actual = habitacion
         st.subheader(f"Habitación: {habitacion}")
 
         # Añadir enlaces (muebles)
-        nuevo_enlace = st.text_input("Agregar enlace de un mueble", key='nuevo_enlace')
-        if st.button("Agregar mueble", key='agregar_mueble'):
+        nuevo_enlace = st.text_input("Agregar enlace de un mueble")
+        if st.button("Agregar mueble"):
             if nuevo_enlace:
                 data[vivienda][habitacion].append(nuevo_enlace)
-                with open('data.json', 'w') as f:
-                    json.dump(data, f)
+                save_data()
                 st.rerun()
 
         # Mostrar enlaces en la habitación
@@ -77,6 +111,5 @@ archivo_subido = st.sidebar.file_uploader("Importar datos", type=['json'])
 if archivo_subido is not None:
     data = json.load(archivo_subido)
     st.session_state.data = data
-    with open('data.json', 'w') as f:
-        json.dump(data, f)
+    save_data()
     st.rerun()
